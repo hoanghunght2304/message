@@ -13,7 +13,6 @@ let UserSchema = new Schema({
   },
   name: {
     type: String,
-    lowercase: true,
     text: true,
     trim: true,
     required: true
@@ -23,11 +22,15 @@ let UserSchema = new Schema({
     required: true,
     unique: true
   },
-  makeFriend: {
-    default: false
-  },
+
   friend: {
-    type: [String],
+    type: [new Schema(
+      {
+        _id: false,
+        id: String,
+        accept: { type: Boolean, default: false }
+      }
+    )],
     default: []
   },
   password: {

@@ -4,20 +4,26 @@ module.exports = app => {
   const controller = require('../controllers/userController');
 
   app.route('/register')
-    .post(controller.register);  
-  
+    .post(controller.register);
+
   app.route('/login')
     .post(controller.login);
 
-  // app.route('/search')
-  //   .get(controller.search);  
+  app.route('/users/:userId')
+    .get(controller.readUser);
 
-  app.route('/users')
+  app.route('/users/:id/addFriend')
     .post(controller.addFriend);
 
-  // app.route('/users/userId')  
-  //   .get(controller.read_user);
+  app.route('/users/:id/confirmFriend')
+    .post(controller.confirm);
 
-  app.route('/friend/:friendId')
-    .get(controller.listFriends); 
+  app.route('/users/:id/unfriend')  
+    .post(controller.unfriend);
+
+  app.route('/friends')
+    .get(controller.listFriends);
+
+  app.route('/search')
+    .get(controller.search);
 };  

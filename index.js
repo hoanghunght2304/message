@@ -15,9 +15,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 const userRoute = require('./api/routes/userRoutes'),
-  User = require('./api/models/userModel');
+  User = require('./api/models/userModel'),
+  messageRoute = require('./api/routes/messageRoutes'),
+  Message = require('./api/models/messageModel');
 
-userRoute(app);  
+userRoute(app); 
+messageRoute(app); 
 
 app.listen(port);
 console.log(`Message started on: ${port}`);
