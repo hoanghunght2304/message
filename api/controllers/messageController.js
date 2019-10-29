@@ -46,6 +46,13 @@ exports.sendMessage = async (req, res) => {
 
 
 exports.detailMessage = async (req, res) => {
+  const idTmp = [req.headers['id'], req.params.id].sort();
+  const idRoom = idTmp[0] + idTmp[1];
+  Message.findOne({_idRoom: idRoom}, (err, message) => {
+    if (err)
+      res.send(err);
+    res.json(message);  
+  });
 
 };
 
