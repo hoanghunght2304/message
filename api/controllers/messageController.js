@@ -17,8 +17,9 @@ exports.sendMessage = async (req, res) => {
       receiverId: req.params.id,
       avatar: "http://avatar.png"
     }];
-    var newMessage = new Message({
+    let newMessage = new Message({
       _id: mongoose.Types.ObjectId(),
+      join: [idTmp[0], idTmp[1]],
       _idRoom: idRoom,
       message
     });
@@ -28,9 +29,9 @@ exports.sendMessage = async (req, res) => {
       res.json(message);
     });
   } else {
-    b.message.push({
-      
+    b.message.push({     
       idMessage: mongoose.Types.ObjectId(),
+      join: [idTmp[0], idTmp[1]],
       message: req.body.message,
       senderId: req.headers['id'],
       receiverId: req.params.id,
@@ -48,7 +49,7 @@ exports.sendMessage = async (req, res) => {
 exports.detailMessage = async (req, res) => {
   const idTmp = [req.headers['id'], req.params.id].sort();
   const idRoom = idTmp[0] + idTmp[1];
-  Message.findOne({_idRoom: idRoom}, (err, message) => {
+  await Message.findOne({_idRoom: idRoom}, (err, message) => {
     if (err)
       res.send(err);
     res.json(message);  
@@ -56,6 +57,6 @@ exports.detailMessage = async (req, res) => {
 
 };
 
-// exports.listMessage = async (req, res) => {
-
-// };
+exports.listMessage = async (req, res) => {
+  
+};

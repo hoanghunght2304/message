@@ -10,6 +10,7 @@ let MessageSchema = new Schema({
     type: String,
     required: true
   },
+  join: [String],
   message: [
     {
       _id: false,
