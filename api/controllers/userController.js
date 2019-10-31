@@ -52,24 +52,6 @@ exports.login = (req, res) => {
 
 
 
-exports.search = async (req, res) => {
-  User.find( 
-    {name: new RegExp('^' + req.query.q, 'i') }, 
-    { _id: 1, "name": 1, "friend": 1 }, 
-    async (err, user) => {
-    if (err)
-      res.send(err); 
-    res.json(user);  
-    // let a = await User.findOne({_id: req.headers['id']});
-    // //let b = a.friend[0].id;
-    // if (a.friend[0].id !== user.friend[0].id)
-    //   res.json(`Chưa gửi lời mời kết bạn ${user}`);
-    // if (a.friend[0].accept === false)
-    //   res.json(`Đã gửi lời mời kết bạn ${user}`);
-    // else res.json(`Đã là bạn bè ${user}`);    
-  }).collation({ locale: 'en', strength: 1 });
-
-};
 
 exports.addFriend = async (req, res) => {
   try {
@@ -123,7 +105,7 @@ exports.confirm = async (req, res) => {
     if (!isExists) {
       return res.json("Chưa gửi lời mời kết bạn");
     } else {
-      let user = await User.findOne({ _id: userId})
+      let user = await User.findOne({ _id: userId })
       user.friend.push({
         accept: true,
         id: req.params.id
@@ -144,21 +126,21 @@ exports.confirm = async (req, res) => {
 
 exports.unfriend = async (req, res) => {
   let userId = req.headers['id'];
-  let friend = await User.findOne({_id: req.params.id});
+  let friend = await User.findOne({ _id: req.params.id });
   if (friend) {
-    let user = await User.findOne({_id: userId});
-    if(user.friend.id !== req.params.id) {
+    let user = await User.findOne({ _id: userId });
+    if (user.friend.id !== req.params.id) {
       res.json("Chưa kết bạn với người này!");
     } else {
-      let a = user.friend.map( (e) => {
+      let a = user.friend.map((e) => {
         if (e.id === req.params.id) {
-          return 
+          return
         }
       });
-      user.friend.splice(0,a)
+      user.friend.splice(0, a)
     }
-  } else {  
-    return res.json({message: 'Người dùng không tồn tại!'});
+  } else {
+    return res.json({ message: 'Người dùng không tồn tại!' });
   }
 };
 
@@ -207,6 +189,25 @@ exports.listFriends = async (req, res) => {
   res.json(myFriend[0].friendsDetail);
 };
 
+
+exports.search = async (req, res) => {
+  User.find(
+    { name: new RegExp('^' + req.query.q, 'i') },
+    { _id: 1, "name": 1, "friend": 1 },
+    async (err, user) => {
+      if (err)
+        res.send(err);
+      res.json(user);
+      // let a = await User.findOne({_id: req.headers['id']});
+      // //let b = a.friend[0].id;
+      // if (a.friend[0].id !== user.friend[0].id)
+      //   res.json(`Chưa gửi lời mời kết bạn ${user}`);
+      // if (a.friend[0].accept === false)
+      //   res.json(`Đã gửi lời mời kết bạn ${user}`);
+      // else res.json(`Đã là bạn bè ${user}`);    
+    }).collation({ locale: 'en', strength: 1 });
+
+};
 
 exports.readUser = (req, res) => {
   User.findById(req.params.userId, (err, user) => {

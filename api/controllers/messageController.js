@@ -29,7 +29,7 @@ exports.sendMessage = async (req, res) => {
       res.json(message);
     });
   } else {
-    b.message.push({     
+    b.message.push({
       idMessage: mongoose.Types.ObjectId(),
       join: [idTmp[0], idTmp[1]],
       message: req.body.message,
@@ -49,14 +49,98 @@ exports.sendMessage = async (req, res) => {
 exports.detailMessage = async (req, res) => {
   const idTmp = [req.headers['id'], req.params.id].sort();
   const idRoom = idTmp[0] + idTmp[1];
-  await Message.findOne({_idRoom: idRoom}, (err, message) => {
+  await Message.findOne({ _idRoom: idRoom }, (err, message) => {
     if (err)
       res.send(err);
-    res.json(message);  
+    res.json(message);
   });
 
 };
 
+// exports.listMessage = async (req, res) => {
+
+//   let infoUser = await Message.aggregate([
+//     {
+//       $match: { join: req.headers['id'] }
+//     },
+//     {
+//       $lookup: {
+//         from: "users",
+//         let: { userId: req.headers['id'] },
+//         pipeline: [
+//           {
+//             $match: {
+//               $expr: {
+//                 $and: { $eq: ["$$userId", "$_id"] }
+//               }
+//             }
+//           },
+//           { $project: { _id: 1, username: 1, name: 1 } }
+//         ],
+//         as: "user"
+//       }
+//     }
+//   ])
+
+//   let listMessage = await Message.aggregate([
+//     { $match: { join: req.headers['id'] } },
+//     { $project: { _id: 0, message: { $slice: ["$message.message", -1] } } }
+//   ])
+//   const a = {
+//     infoUser: infoUser[0].user,
+//     //message: listMessage
+//     listMessage
+//   };
+//   res.json(a);
+// };
+
+
 exports.listMessage = async (req, res) => {
-  
+  let infoUser = await Message.aggregate([
+    {
+      $match: { join: req.headers['id'] }
+    },
+    {
+      $unwind: "$join"
+    },
+    {
+      $match: { join: { $ne: req.headers['id'] } }
+    },
+    {
+      $lookup: {
+        from: "users",
+        let: { userId: "$join" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: { $eq: ["$$userId", "$_id"] }
+              }
+            }
+          },
+          { $project: { _id: 1, username: 1, name: 1 } }
+        ],
+        as: "user"
+      }
+    }
+  ])
+  let listMessage = await Message.aggregate([
+    { $match: { join: req.headers['id'] } },
+    { $project: { _id: 0, message: { $slice: ["$message.message", -1] } } }
+  ])
+  const a = {
+    infoUser: infoUser[0].user,
+    //message: listMessage
+    listMessage
+  };
+  res.json(a);
+};
+
+
+exports.readUser = (req, res) => {
+  User.findById(req.params.userId, (err, user) => {
+    if (err)
+      res.send(err);
+    res.json(user);
+  });
 };

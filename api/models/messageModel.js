@@ -28,13 +28,6 @@ let MessageSchema = new Schema({
       }
     }
   ]
-
-  // listMyMessage: {
-  //   friendId: {
-  //     type: String
-  //   },
-  //   message: []
-  // }
 });
 
 module.exports = mongoose.model('Messages', MessageSchema);
