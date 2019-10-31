@@ -96,16 +96,10 @@ exports.detailMessage = async (req, res) => {
 
 
 exports.listMessage = async (req, res) => {
-  let infoUser = await Message.aggregate([
-    {
-      $match: { join: req.headers['id'] }
-    },
-    {
-      $unwind: "$join"
-    },
-    {
-      $match: { join: { $ne: req.headers['id'] } }
-    },
+  let listMessage = await Message.aggregate([
+    { $match: { join: "5db17ca882aa6e28d0e6c9ac" } },
+    { $unwind: "$join" },
+    { $match: { join: { $ne: "5db17ca882aa6e28d0e6c9ac" } } },
     {
       $lookup: {
         from: "users",
@@ -120,20 +114,17 @@ exports.listMessage = async (req, res) => {
           },
           { $project: { _id: 1, username: 1, name: 1 } }
         ],
-        as: "user"
+        as: "infoFriend"
       }
+    },
+    {
+      $addFields: { lastMessage: { $arrayElemAt: ["$message.message", -1] } }
+    },
+    {
+      $project: { _idRoom: 1, infoFriend: 1, lastMessage: 1, _id: 0 }
     }
   ])
-  let listMessage = await Message.aggregate([
-    { $match: { join: req.headers['id'] } },
-    { $project: { _id: 0, message: { $slice: ["$message.message", -1] } } }
-  ])
-  const a = {
-    infoUser: infoUser[0].user,
-    //message: listMessage
-    listMessage
-  };
-  res.json(a);
+  res.json(listMessage);
 };
 
 

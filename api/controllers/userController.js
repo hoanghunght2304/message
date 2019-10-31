@@ -126,19 +126,45 @@ exports.confirm = async (req, res) => {
 
 exports.unfriend = async (req, res) => {
   let userId = req.headers['id'];
-  let friend = await User.findOne({ _id: req.params.id });
+  let friendId = req.params.id;
+  let friend = await User.findOne({ _id: friendId });
   if (friend) {
-    let user = await User.findOne({ _id: userId });
-    if (user.friend.id !== req.params.id) {
-      res.json("Chưa kết bạn với người này!");
-    } else {
-      let a = user.friend.map((e) => {
-        if (e.id === req.params.id) {
-          return
-        }
-      });
-      user.friend.splice(0, a)
-    }
+    let user = await User.findOne({_id: userId});
+    user.update(
+      {},
+      {$pull: {friend: {$elemMatch: {id: friendId, accept: true || false}}}}
+    );
+    let fr = await User.findOne({_id: friendId});
+    fr.update(
+      {},
+      {$pull: {friend: {$elemMatch: {id: userId, accept: true || false}}}}
+    );
+    res.json(`Đã xóa ${req.params.id} khỏi danh sách bạn bè!`);
+    // let user = await User.findOne({ _id: userId },
+    //   { friend: { $elemMatch: { id: req.params.id } } }
+    // );
+    // if (!user.friend[0]) {
+    //   res.json("Chưa kết bạn với người này!");
+    // } else {
+    //   user.update({
+    //     $pull: user.friend
+    //   });
+    //   let fr = await User.findOne({ _id: req.params.id },
+    //     { friend: { $elemMatch: { id: userId } } }
+    //   );
+    //   fr.update({
+    //     $pull: user.friend
+    //   });
+    //   // user.friend.splice(0, 1);
+    //   // let fr = await User.findOne({ _id: req.params.id },
+    //   //   { friend: { $elemMatch: { id: userId } } }
+    //   // );
+    //   // fr.friend.splice(0, 1);
+    //   // await user.updateOne();
+    //   // await fr.updateOne();
+    //   res.json(`Đã xóa ${req.params.id} khỏi danh sách bạn bè!`);
+    // }
+
   } else {
     return res.json({ message: 'Người dùng không tồn tại!' });
   }
