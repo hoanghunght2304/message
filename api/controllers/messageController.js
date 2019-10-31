@@ -57,49 +57,12 @@ exports.detailMessage = async (req, res) => {
 
 };
 
-// exports.listMessage = async (req, res) => {
-
-//   let infoUser = await Message.aggregate([
-//     {
-//       $match: { join: req.headers['id'] }
-//     },
-//     {
-//       $lookup: {
-//         from: "users",
-//         let: { userId: req.headers['id'] },
-//         pipeline: [
-//           {
-//             $match: {
-//               $expr: {
-//                 $and: { $eq: ["$$userId", "$_id"] }
-//               }
-//             }
-//           },
-//           { $project: { _id: 1, username: 1, name: 1 } }
-//         ],
-//         as: "user"
-//       }
-//     }
-//   ])
-
-//   let listMessage = await Message.aggregate([
-//     { $match: { join: req.headers['id'] } },
-//     { $project: { _id: 0, message: { $slice: ["$message.message", -1] } } }
-//   ])
-//   const a = {
-//     infoUser: infoUser[0].user,
-//     //message: listMessage
-//     listMessage
-//   };
-//   res.json(a);
-// };
-
 
 exports.listMessage = async (req, res) => {
   let listMessage = await Message.aggregate([
-    { $match: { join: "5db17ca882aa6e28d0e6c9ac" } },
+    { $match: { join: req.headers['id'] } },
     { $unwind: "$join" },
-    { $match: { join: { $ne: "5db17ca882aa6e28d0e6c9ac" } } },
+    { $match: { join: { $ne: req.headers['id'] } } },
     {
       $lookup: {
         from: "users",
@@ -118,10 +81,13 @@ exports.listMessage = async (req, res) => {
       }
     },
     {
-      $addFields: { lastMessage: { $arrayElemAt: ["$message.message", -1] } }
+      $addFields: { lastMessage: { $arrayElemAt: ["$message", -1] } }
     },
     {
       $project: { _idRoom: 1, infoFriend: 1, lastMessage: 1, _id: 0 }
+    },
+    {
+      $project: { "lastMessage.avatar": 0, "lastMessage.receiverId": 0 }
     }
   ])
   res.json(listMessage);
