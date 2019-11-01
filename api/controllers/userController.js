@@ -128,43 +128,30 @@ exports.unfriend = async (req, res) => {
   let userId = req.headers['id'];
   let friendId = req.params.id;
   let friend = await User.findOne({ _id: friendId });
+  let a = await User.findOne({ _id: userId });
   if (friend) {
-    let user = await User.findOne({_id: userId});
-    user.update(
-      {},
-      {$pull: {friend: {$elemMatch: {id: friendId, accept: true || false}}}}
-    );
-    let fr = await User.findOne({_id: friendId});
-    fr.update(
-      {},
-      {$pull: {friend: {$elemMatch: {id: userId, accept: true || false}}}}
-    );
-    res.json(`Đã xóa ${req.params.id} khỏi danh sách bạn bè!`);
-    // let user = await User.findOne({ _id: userId },
-    //   { friend: { $elemMatch: { id: req.params.id } } }
+    // let a = await User.findOne({ _id: userId },
+    //   { friend: { $elemMatch: { id: friendId } } }
     // );
-    // if (!user.friend[0]) {
-    //   res.json("Chưa kết bạn với người này!");
-    // } else {
-    //   user.update({
-    //     $pull: user.friend
-    //   });
-    //   let fr = await User.findOne({ _id: req.params.id },
-    //     { friend: { $elemMatch: { id: userId } } }
-    //   );
-    //   fr.update({
-    //     $pull: user.friend
-    //   });
-    //   // user.friend.splice(0, 1);
-    //   // let fr = await User.findOne({ _id: req.params.id },
-    //   //   { friend: { $elemMatch: { id: userId } } }
-    //   // );
-    //   // fr.friend.splice(0, 1);
-    //   // await user.updateOne();
-    //   // await fr.updateOne();
-    //   res.json(`Đã xóa ${req.params.id} khỏi danh sách bạn bè!`);
-    // }
+    // let c = a.friend;
+    // let b = a.friend[0].id;
 
+    let b = a.friend.findIndex(e => e.id === friendId);
+    if (b < 0)
+      res.json({ message: "Chưa kết bạn với người này!" });
+    else {
+      await User.update(
+        { _id: userId },
+        { $pull: { friend: { id: friendId } } },
+        { multi: true }
+      );
+      await User.update(
+        { _id: friendId },
+        { $pull: { friend: { id: userId } } },
+        { multi: true }
+      );
+      res.json({ message: `Đã xóa ${req.params.id} khỏi danh sách bạn bè!` });
+    }
   } else {
     return res.json({ message: 'Người dùng không tồn tại!' });
   }
