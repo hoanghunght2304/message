@@ -13,7 +13,8 @@ let UserSchema = new Schema({
   },
   name: {
     type: String,
-    text: true,
+    //"$**": "text",
+    // text: true,
     trim: true,
     required: true
   },

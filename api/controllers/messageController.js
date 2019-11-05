@@ -54,7 +54,6 @@ exports.detailMessage = async (req, res) => {
       res.send(err);
     res.json(message);
   });
-
 };
 
 
